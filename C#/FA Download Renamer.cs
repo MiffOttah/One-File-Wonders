@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Windows.Forms;
 
@@ -48,6 +49,7 @@ namespace FA_Download_Renamer
             string[] fileList = Directory.GetFiles(path);
             Console.WriteLine("Found {0} files", fileList.Length);
             int renamed = 0;
+			ArrayList errorFiles = new ArrayList();
 
             for (int i = 0; i < fileList.Length; i++)
             {
@@ -71,12 +73,24 @@ namespace FA_Download_Renamer
 
                 if (!string.IsNullOrEmpty(nn))
                 {
-                    File.Move(fileList[i], Path.Combine(path, nn));
-                    renamed++;
+                	try {
+                    	File.Move(fileList[i], Path.Combine(path, nn));
+                    	renamed++;
+                	} catch {
+                		errorFiles.Add(bn);
+                	}
                 }
             }
 
             MessageBox.Show(renamed.ToString() + " files renamed.", "FA Download Renamer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (errorFiles.Count > 0){
+            	Console.WriteLine();
+            	Console.WriteLine("Could not renanme:");
+            	foreach (object fn in errorFiles){
+            		Console.WriteLine(fn.ToString());
+            	}
+            	MessageBox.Show(errorFiles.Count.ToString() + " files could not be renamed.", "FA Download Renamer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
     }
 }
